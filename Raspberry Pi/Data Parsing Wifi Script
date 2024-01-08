@@ -1,0 +1,58 @@
+import socket
+import csv
+from datetime import datetime
+
+# Server settings
+server_ip = '0.0.0.0'  # Listen on all interfaces
+server_port = 12345    # Port number to listen on
+buffer_size = 1024     # Buffer size for receiving data
+
+# CSV file settings
+csv_file_path = 'sensor_data.csv'
+csv_headers = ['Timestamp', 'TVOC', 'eCO2', 'Temperature', 'Humidity', 'PM2.5', 'CO', 'H2S', 'Benzene']
+
+# Function to parse received data
+def parse_data(data):
+    try:
+        fields = data.split(',')
+        sensor_values = {field.split('=')[0]: field.split('=')[1] for field in fields}
+        return sensor_values
+    except Exception as e:
+        print(f"Error parsing data: {e}")
+        return None
+
+# Function to write data to CSV
+def write_to_csv(data):
+    with open(csv_file_path, 'a', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=csv_headers)
+        writer.writerow(data)
+
+# Create a CSV file with headers if it doesn't exist
+try:
+    with open(csv_file_path, 'x', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=csv_headers)
+        writer.writeheader()
+except FileExistsError:
+    pass
+
+# Setting up the server
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_socket.bind((server_ip, server_port))
+
+print(f"Server listening on port {server_port}")
+
+# Server loop
+try:
+    while True:
+        data, addr = server_socket.recvfrom(buffer_size)
+        data = data.decode('utf-8')
+        print(f"Received data from {addr}: {data}")
+
+        sensor_data = parse_data(data)
+        if sensor_data:
+            sensor_data['Timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            write_to_csv(sensor_data)
+except KeyboardInterrupt:
+    print("Server stopped")
+finally:
+    server_socket.close()
