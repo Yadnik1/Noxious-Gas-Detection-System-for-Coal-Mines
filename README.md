@@ -22,6 +22,8 @@ The system employs a suite of sensors to monitor a broad range of conditions:
 
 The device's firmware, orchestrates the operation of the ESP32, ensuring seamless integration of the sensor data. The information is then timestamped and visualized on a custom Grafana dashboard. This approach not only provides immediate insights into the mine's air quality but also establishes a historical data record for long-term environmental assessment.
 
+The devices firmware is a .ino file written in Arduino IDE can be found in the ESP32 code file.
+
 ### System Integration
 ![System Integration](images/image1.png)
 
@@ -32,9 +34,13 @@ The device's firmware, orchestrates the operation of the ESP32, ensuring seamles
 
 The system's detection accuracy has been enhanced by 25% through the implementation of a Bayesian sensor fusion algorithm on a Raspberry Pi 4. This sophisticated algorithm combines the data from multiple sensors to reduce uncertainty and improve the reliability of anomaly detection.
 
+The scripts for detection of anomoly can be found in the Raspberry Pi folder.
+
 ## Automated Alerts and GUI for Rapid Response
 
 The project incorporates SMTP protocols and Python’s Tkinter library to automate alerts and design a graphical user interface (GUI) for quick emergency responses. This innovation has resulted in a 37% faster reaction time to environmental anomalies, significantly improving the safety response in critical situations.
+
+The scripts for Automated Alerts and the GUI can be found in the Raspberry Pi folder.
 
 The entire working of the project can be seen through this video: https://drive.google.com/file/d/19j670oe4-RVG4A1S_L_8gfT7FlbL3VHE/view?usp=sharing
 ## Conclusion
