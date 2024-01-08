@@ -15,9 +15,18 @@ The system employs a suite of sensors to monitor a broad range of conditions:
   - **MQ-136**: For hydrogen sulfide (H₂S) gas.
   - **MQ-135**: Used for sensing a variety of gases including benzene (C₆H₆).
 
+### Sensor Integration
+![Sensor Integration](images/image4.png)
+
 ## System Integration and Data Visualization
 
-The device's firmware, written in C, orchestrates the operation of the ESP32, ensuring seamless integration of the sensor data. The information is then timestamped and visualized on a custom Grafana dashboard. This approach not only provides immediate insights into the mine's air quality but also establishes a historical data record for long-term environmental assessment.
+The device's firmware, orchestrates the operation of the ESP32, ensuring seamless integration of the sensor data. The information is then timestamped and visualized on a custom Grafana dashboard. This approach not only provides immediate insights into the mine's air quality but also establishes a historical data record for long-term environmental assessment.
+
+### System Integration
+![System Integration](images/image1.png)
+
+### Data Visualization
+![Data Visualization](images/image3.png)
 
 ## Enhanced Detection Accuracy
 
@@ -27,6 +36,7 @@ The system's detection accuracy has been enhanced by 25% through the implementat
 
 The project incorporates SMTP protocols and Python’s Tkinter library to automate alerts and design a graphical user interface (GUI) for quick emergency responses. This innovation has resulted in a 37% faster reaction time to environmental anomalies, significantly improving the safety response in critical situations.
 
+The entire working of the project can be seen through this video: https://drive.google.com/file/d/19j670oe4-RVG4A1S_L_8gfT7FlbL3VHE/view?usp=sharing
 ## Conclusion
 
 This Noxious Gas Detection System is a significant advancement in mining safety technology. It offers a multi-faceted approach by combining real-time monitoring, advanced sensor fusion, and quick-response features to ensure a safe working environment for miners. The system not only underscores the technical proficiency involved in its creation but also highlights a commitment to safeguarding human lives in the high-risk coal mining industry.
