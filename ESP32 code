@@ -1,0 +1,98 @@
+#include <Wire.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Adafruit_SGP30.h>
+#include <SparkFunHTU21D.h>
+
+const int GP2Y1010AU0F_PIN = A0; // Define the analog pin for the dust sensor
+const int MQ7_PIN = A1;          // Define the analog pin for MQ-7
+const int MQ136_PIN = A2;        // Define the analog pin for MQ-136
+const int MQ135_PIN = A3;        // Define the analog pin for MQ-135
+
+// Replace with your network credentials
+#define WIFI_SSID "MyNetwork"
+#define WIFI_PASSWORD "12345678"
+
+// InfluxDB details
+#define INFLUXDB_URL "https://ap-southeast-2-1.aws.cloud2.influxdata.com"
+#define INFLUXDB_TOKEN "PIXF3Wj3NHrq7CeuiwdcbMHR1FDRH4XCcqPyLeRee5yqHuldDHjHmI5--cVdfPUeabv21Tx3j4UVGCgM36_JfObw=="
+#define INFLUXDB_ORG "yadnik22@gmail.com"
+#define INFLUXDB_BUCKET "yadniks Bucket"
+#define TZ_INFO "AEDT-11"
+
+// Create instances for each sensor
+Adafruit_SGP30 sgp;
+HTU21D myHumidity;
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+
+  // Initialize Wi-Fi
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi");
+
+  // Initialize sensors
+  if (!sgp.begin()) {
+    Serial.println("Sensor not found : SGP30");
+    while (1);
+  }
+  if (!myHumidity.begin()) {
+    Serial.println("Sensor not found : HTU21D");
+    while (1);
+  }
+  pinMode(GP2Y1010AU0F_PIN, INPUT);
+  pinMode(MQ7_PIN, INPUT);
+  pinMode(MQ136_PIN, INPUT);
+  pinMode(MQ135_PIN, INPUT);
+}
+
+oid loop() {
+  // Read sensor data
+  if (!sgp.IAQmeasure()) {
+    Serial.println("Measurement failed");
+    return;
+  }
+  float tvoc = sgp.TVOC;
+  float eco2 = sgp.eCO2;
+  
+  float temperature = myHumidity.readTemperature();
+  float humidity = myHumidity.readHumidity();
+  
+  float pm25 = analogRead(GP2Y1010AU0F_PIN); // Read PM2.5 value
+  float co = analogRead(MQ7_PIN);            // Read CO value
+  float h2s = analogRead(MQ136_PIN);         // Read H2S value
+  float benzene = analogRead(MQ135_PIN);     // Read Benzene value
+  
+  // Construct payload string
+  String payload = String("environment,location=your_location tvoc=") + tvoc +
+                   ",eco2=" + eco2 + ",temperature=" + temperature + 
+                   ",humidity=" + humidity + ",pm25=" + pm25 + 
+                   ",co=" + co + ",h2s=" + h2s + ",benzene=" + benzene;
+
+  // Send data to InfluxDB
+  sendDataToInfluxDB(payload);
+
+  // Wait for a while before reading again
+  delay(10000);
+}
+
+void sendDataToInfluxDB(String payload) {
+  HTTPClient http;
+  http.begin(INFLUXDB_URL);
+  http.addHeader("Authorization", "Token " + String(INFLUXDB_TOKEN));
+  http.addHeader("Content-Type", "application/json");
+  int httpResponseCode = http.POST(payload);
+  if (httpResponseCode > 0) {
+    String response = http.getString();
+    Serial.println(response);
+  }
+  else {
+    Serial.println("Error sending data to InfluxDB");
+  }
+  http.end();
+}
