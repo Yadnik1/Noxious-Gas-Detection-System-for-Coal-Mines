@@ -1,0 +1,120 @@
+import socket
+import csv
+from datetime import datetime
+import tkinter as tk
+import smtplib
+from email.mime.text import MIMEText
+
+# Server settings
+server_ip = '0.0.0.0'  # Listen on all interfaces
+server_port = 12345    # Port number to listen on
+buffer_size = 1024     # Buffer size for receiving data
+
+# CSV file settings
+csv_file_path = 'sensor_data.csv'
+csv_headers = ['Timestamp', 'H2S', 'CO', 'C6H6', 'PM2.5', 'TVOC', 'CO2eq', 'Temperature', 'Humidity']
+
+# Sensor thresholds for anomaly detection
+thresholds = {
+    'H2S': 10,       # Example threshold for H2S
+    'CO': 35,        # Example threshold for CO
+    'C6H6': 5,       # Example threshold for Benzene
+    'PM2.5': 35,     # Example threshold for PM2.5
+    'TVOC': 500,     # Example threshold for TVOC
+    'CO2eq': 1000,   # Example threshold for CO2-equivalent
+    'Temperature': [15, 35],  # Acceptable range for temperature
+    'Humidity': [30, 70]      # Acceptable range for humidity
+}
+
+# Email settings
+smtp_server = 'smtp.example.com'
+smtp_port = 587
+sender_email = 'yadnik22@gmail.com'
+sender_password = 'xysbkfb1298'
+receiver_email = 'testemail@example.com'
+
+# Function to send email
+def send_email(subject, message):
+    try:
+        msg = MIMEText(message)
+        msg['Subject'] = subject
+        msg['From'] = sender_email
+        msg['To'] = receiver_email
+
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.send_message(msg)
+        server.quit()
+        print("Email sent successfully")
+    except Exception as e:
+        print(f"Error sending email: {e}")
+
+# Function to create Tkinter popup
+def create_popup():
+    root = tk.Tk()
+    root.title("Alert")
+    tk.Label(root, text="Anomaly Detected! Send SOS?", font=("Helvetica", 16)).pack(pady=20)
+    tk.Button(root, text="Send SOS", command=lambda: [send_email("SOS Alert", "An SOS alert has been triggered from the sensor system."), root.destroy()]).pack(pady=10)
+    tk.Button(root, text="Dismiss", command=root.destroy).pack(pady=5)
+    root.mainloop()
+
+# Function to check for anomalies
+def check_for_anomalies(data):
+    for key in data:
+        if key in thresholds:
+            if isinstance(thresholds[key], list):  # Range check for Temperature and Humidity
+                if not (thresholds[key][0] <= float(data[key]) <= thresholds[key][1]):
+                    return True
+            else:  # Threshold check for other sensors
+                if float(data[key]) > thresholds[key]:
+                    return True
+    return False
+
+# Function to parse received data
+def parse_data(data):
+    try:
+        fields = data.split(',')
+        sensor_values = {field.split('=')[0]: field.split('=')[1] for field in fields}
+        return sensor_values
+    except Exception as e:
+        print(f"Error parsing data: {e}")
+        return None
+
+# Function to write data to CSV
+def write_to_csv(data):
+    with open(csv_file_path, 'a', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=csv_headers)
+        writer.writerow(data)
+
+# Create a CSV file with headers if it doesn't exist
+try:
+    with open(csv_file_path, 'x', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=csv_headers)
+        writer.writeheader()
+except FileExistsError:
+    pass
+
+# Setting up the server
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_socket.bind((server_ip, server_port))
+
+print(f"Server listening on port {server_port}")
+
+# Server loop
+try:
+    while True:
+        data, addr = server_socket.recvfrom(buffer_size)
+        data = data.decode('utf-8')
+        print(f"Received data from {addr}: {data}")
+
+        sensor_data = parse_data(data)
+        if sensor_data:
+            sensor_data['Timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            write_to_csv(sensor_data)
+            if check_for_anomalies(sensor_data):
+                create_popup()
+except KeyboardInterrupt:
+    print("Server stopped")
+finally:
+    server_socket.close()
