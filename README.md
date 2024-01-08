@@ -2,35 +2,31 @@
 
 ## Overview
 
-The Noxious Gas Detection System is a highly specialized and technologically advanced solution developed to enhance safety within coal mines. It monitors critical environmental parameters, particularly focusing on the presence of hazardous gases, and provides real-time data essential for the well-being of mine workers. Utilizing the ESP32 microcontroller, the system sends eight different parameter data i.e. H₂S, CO, C₆H₆, PM 2.5, TVOC, CO2-eq, temperature, and humidity to InfluxDB over Wi-Fi and displays this information on a Grafana dashboard.
+The Noxious Gas Detection System is an innovative and essential safety solution for coal mining operations. Leveraging the ESP32 microcontroller, this system accurately monitors and reports on a variety of environmental parameters, including hazardous gas levels. Data collected by the system is transmitted to InfluxDB over Wi-Fi and visualized in real-time via a Grafana dashboard.
 
-## Key Features
+## Key Sensors
 
-- **ESP32 Microcontroller**: The central unit that interfaces with various sensors to collect and transmit environmental data.
-- **Real-Time Data Transmission**: Sends data on eight parameters i.e. H₂S, CO, C₆H₆, PM 2.5, TVOC, CO2-eq, temperature, and humidity data to InfluxDB, enabling prompt monitoring and alerting.
-- **Grafana Dashboard**: Offers a real-time visualization of environmental parameters for quick analysis and action.
-- **Bayesian Sensor Fusion Algorithm**: Increases detection accuracy by 25% by intelligently combining data from multiple sensors to identify anomalies.
-- **Automated Alerts and GUI**: Utilizes SMTP for automated alerts and Python’s Tkinter to design a GUI for rapid SOS responses.
+The system employs a suite of sensors to monitor a broad range of conditions:
+- **SGP30 Sensor**: Measures total volatile organic compounds (TVOC) and equivalent CO2 (eCO2) levels, interfaced via I2C.
+- **HTU21D Sensor**: Provides precise readings of temperature and humidity, also interfaced over I2C.
+- **GP2Y1010AU0F Dust Sensor**: Detects PM2.5 particulate matter, interfaced over analog input.
+- **MQ Series Gas Sensors**: A selection of MQ sensors are used to detect various gases:
+  - **MQ-7**: Carbon monoxide (CO) detection.
+  - **MQ-136**: For hydrogen sulfide (H₂S) gas.
+  - **MQ-135**: Used for sensing a variety of gases including benzene (C₆H₆).
 
-## Technical Highlights
+## System Integration and Data Visualization
 
-### Sensor Fusion for Enhanced Accuracy
+The device's firmware, written in C, orchestrates the operation of the ESP32, ensuring seamless integration of the sensor data. The information is then timestamped and visualized on a custom Grafana dashboard. This approach not only provides immediate insights into the mine's air quality but also establishes a historical data record for long-term environmental assessment.
 
-Sensor fusion is a critical component in the detection system, significantly reducing the margin of error in identifying potential hazards. By employing a Bayesian approach, the system weighs the reliability of each sensor, improving the accuracy and robustness of the readings. This project has effectively utilized Bayesian sensor fusion to discern anomalous increases in gas concentrations, ensuring a high detection accuracy of 93%.
+## Enhanced Detection Accuracy
 
-### System Integration and Data Visualization
+The system's detection accuracy has been enhanced by 25% through the implementation of a Bayesian sensor fusion algorithm on a Raspberry Pi 4. This sophisticated algorithm combines the data from multiple sensors to reduce uncertainty and improve the reliability of anomaly detection.
 
-The system's firmware, manages the ESP32's operation, ensuring seamless sensor integration and data handling. The real-time data is visualized on a custom Grafana dashboard, providing an at-a-glance view of all critical parameters and enabling mine operators to make informed decisions swiftly.
+## Automated Alerts and GUI for Rapid Response
 
-### Challenge Overcome
-
-Calibration of sensors posed a significant challenge, particularly in distinguishing between normal environmental variations and genuine anomalies. The project overcame this by refining the Bayesian algorithm, enhancing the system's capability to minimize false positives and improve overall accuracy.
-
-## Usage and Impact
-
-This device is instrumental in ensuring the safety of miners by providing a robust system for early detection of noxious gases. The improved reaction time to anomalies, facilitated by automated alerts and a user-friendly GUI, has led to a 37% quicker response, potentially saving lives and preventing health hazards.
+The project incorporates SMTP protocols and Python’s Tkinter library to automate alerts and design a graphical user interface (GUI) for quick emergency responses. This innovation has resulted in a 37% faster reaction time to environmental anomalies, significantly improving the safety response in critical situations.
 
 ## Conclusion
 
-The Noxious Gas Detection System exemplifies a groundbreaking application of sensor technology in critical safety environments. It's not only a showcase of engineering innovation but also a significant step towards protecting the lives of those who work in one of the most hazardous industries.
-
+This Noxious Gas Detection System is a significant advancement in mining safety technology. It offers a multi-faceted approach by combining real-time monitoring, advanced sensor fusion, and quick-response features to ensure a safe working environment for miners. The system not only underscores the technical proficiency involved in its creation but also highlights a commitment to safeguarding human lives in the high-risk coal mining industry.
